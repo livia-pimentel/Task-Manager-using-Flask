@@ -2,6 +2,15 @@
 
 {% block content %}
 
+<!-- Bloco para exibir mensagens de flash -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="alert alert-{{ messages[0][0] }}">
+      {{ messages[0][1] }}
+    </div>
+  {% endif %}
+{% endwith %}
+
 <!-- Search Task Form -->
 <form method="GET" action="{{ url_for('search_tasks') }}" class="mb-4">
     <div class="input-group">
@@ -27,21 +36,4 @@
             <th scope="row" class="text-center">{{ loop.index }}</th>
             <td>{{ task.content }}</td>
             <td class="text-center">
-                <a href="{{ url_for('update_task', task_id=task.id) }}" class="btn btn-outline-secondary btn-sm">Update</a>
-            </td>
-            
-            <td class="text-center">
-                <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn btn-outline-danger btn-sm">Delete</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<legend>No Tasks to Display</legend>
-<p class="text-muted">
-    Click <a href="{{ url_for('add_task') }}">here</a> to Add Task
-</p>
-{% endif %}
-
-{% endblock %}
+                <a href="{{ url_for('update_task', task_id=task.id) }}"
