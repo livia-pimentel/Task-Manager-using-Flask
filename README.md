@@ -15,7 +15,13 @@ Este estudo de caso tem como objetivo:
 - Simulação de deploy em estágio.
 
 ## Ferramentas Usadas
-- Pytest
+- Bandit
+- Docker
+- GitHub Actions
+- Owasp Dependency-check
+- Python
+- ZAP
+
 
 ## Registration Page
 Login or Register if you dont have an account
