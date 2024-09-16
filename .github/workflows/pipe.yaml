@@ -21,7 +21,7 @@ jobs:
 
   test:
     needs: build
-    name: Tests
+    name: Testes
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -38,7 +38,7 @@ jobs:
 
   bandit:
     needs: test
-    name: SAST - Bandit
+    name: Bandit (SAST)
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -50,7 +50,7 @@ jobs:
   
   dependency_check:
     needs: test
-    name: SAST - Dependency-check
+    name: Dependency-Check (SAST)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -84,7 +84,7 @@ jobs:
     needs: 
       - bandit
       - dependency_check
-    name: DAST - ZAP Proxy
+    name: ZAP Scanning Report (DAST)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
