@@ -2,6 +2,14 @@
 
 {% block content %}
 
+<!-- Search Task Form -->
+<form method="GET" action="{{ url_for('search_tasks') }}" class="mb-4">
+    <div class="input-group">
+        <input type="text" class="form-control" name="query" placeholder="Pesquisar tarefa">
+        <button class="btn btn-primary" type="submit">Pesquisar</button>
+    </div>
+</form>
+
 <!-- View All Tasks -->
 {% if tasks %}
 <table class="table table-bordered">
