@@ -21,8 +21,16 @@ def apply_csp(response):
 
 # 2. Removendo a divulgação da versão do servidor
 @app.after_request
-def remove_server_version(response):
-    response.headers['Server'] = 'SecureServer'  # Define um cabeçalho genérico para o servidor
+def apply_security_headers(response):
+    # Content-Security-Policy
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "script-src 'self' https://code.jquery.com; "
+        "style-src 'self' https://stackpath.bootstrapcdn.com; "
+        "form-action 'self'; "  # Restringir envio de formulários à mesma origem
+        "frame-ancestors 'none'; "
+    )
+    response.headers['Permissions-Policy'] = "camera=(), microphone=(), geolocation=()"  # Ajuste conforme necessário
     return response
 
 # 3. Configurando SameSite para cookies
