@@ -79,5 +79,27 @@ jobs:
         with:
           name: Dependency-Check report
           path: ${{github.workspace}}/reports
+  
+  zap:
+    needs: 
+      - bandit
+      - dependency_check
+    name: DAST - ZAP Proxy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t task-image .
+      - name: Run application
+        run: |
+          docker run -d -p 5000:5000 --name task-manager task-image
+          sleep 10
+      - name: Zap Scan
+        uses: zaproxy/action-full-scan@v0.10.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          target: "http://localhost:5000"
+
 
 
