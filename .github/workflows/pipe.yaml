@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build the Docker image
         run: docker build -t $(date +%s) .
-        
+
   test:
     needs: build
     name: Tests
@@ -35,3 +35,16 @@ jobs:
           python -m pip install Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
       - name: Run tests
         run: PYTHONPATH=$PYTHONPATH:. pytest
+
+  bandit:
+    needs: test
+    name: SAST - Bandit
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    steps:
+      - name: Bandit Analysis
+        uses: PyCQA/bandit-action@v1
+
