@@ -47,6 +47,14 @@ def error_404(error):
 def error_403(error):
     return render_template('errors/403.html'), 403
 
+@app.errorhandler(500)
+def error_500(error):
+    return render_template('errors/500.html'), 500
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    # Retornar uma página de erro genérica para todas as exceções não tratadas
+    return render_template("errors/generic.html", message="An unexpected error occurred"), 500
 
 # Home and About
 @app.route("/")
