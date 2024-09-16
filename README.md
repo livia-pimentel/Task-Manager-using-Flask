@@ -1,37 +1,19 @@
-# Task-Manager-using-Flask
+# Hackers do Bem - DevSecOps
+## Estudo de Caso
 
-A simple web application to store your To-Do Tasks .
+O estudo de caso é baseado na aplicação Task-Manager-using-Flask que tem como autor AdityaBagad e trata-se de um gerenciador de tarefas pessoais.
 
-# Features
+Este estudo de caso tem como objetivo:
 
-- User Authentication
-- Easy to use and deploy locally.
+- Utilizar um container Docker para a aplicação.
+- Fazer os ajustes necessários no código para que a aplicação rode com sucesso.
+- Controle de versão com Git.
+- Integração Contínua (CI).
+- Testes automatizados.
+- Uso de Bandit e Owasp Dependency-check para verificação estática de código (SAST).
+- Uso Zed Attack Proxy (ZAP) para análise dinâmica de código (DAST).
+- Simulação de deploy em estágio.
 
-# Requirements
-
-Execute the following command to install the required third party libraries:
-
-```pip3 install -r requirements.txt```
-
-# Usage
-
-1. Clone the repository using the following command
-    
-    ```git clone https://github.com/AdityaBagad/Task-Manager-using-Flask.git```
-
-2. Install the dependencies using
-
-    ```cd  Task-Manager-using-Flask```
-    
-    ```pip3 install -r requirements.txt```
-
-3. Run this command to start the application
-
-    ```cd todo_project```
-
-    ```python run.py```
-
-# Results
 
 ## Registration Page
 Login or Register if you dont have an account
