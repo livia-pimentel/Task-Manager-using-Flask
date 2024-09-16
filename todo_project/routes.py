@@ -7,8 +7,27 @@ from flask_login import login_required, current_user, login_user, logout_user
 from flask import Flask
 
 @app.after_request
-def apply_csp(response):
-    response.headers['Content-Security-Policy'] = "default-src 'self';"
+def apply_security_headers(response):
+    # Content-Security-Policy to prevent XSS and other injections
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "script-src 'self' https://code.jquery.com; "
+        "style-src 'self' https://stackpath.bootstrapcdn.com; "
+        "frame-ancestors 'none';"  # Clickjacking protection
+    )
+    
+    # X-Frame-Options - Prevent clickjacking
+    response.headers['X-Frame-Options'] = 'DENY'
+    
+    # X-Content-Type-Options - Prevent MIME sniffing
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    
+    # Permissions-Policy - Restrict browser features
+    response.headers['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=()'
+    
+    # X-XSS-Protection - Enable XSS protection in browsers
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+
     return response
 
 # Error Handlers
