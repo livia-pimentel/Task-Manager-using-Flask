@@ -1,15 +1,8 @@
 from flask import render_template, url_for, flash, redirect, request
-
 from todo_project import app, db, bcrypt
-
-# Import the forms
 from todo_project.forms import (LoginForm, RegistrationForm, UpdateUserInfoForm, 
                                 UpdateUserPassword, TaskForm, UpdateTaskForm)
-
-# Import the Models
 from todo_project.models import User, Task
-
-# Import 
 from flask_login import login_required, current_user, login_user, logout_user
 
 
@@ -38,17 +31,14 @@ def login():
         return redirect(url_for('all_tasks'))
 
     form = LoginForm()
-    # After you submit the form
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
-        # Check if the user exists and the password is valid
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user)
-            task_form = TaskForm()
-            flash('Login Successfull', 'success')
+            flash('Login Successful', 'success')
             return redirect(url_for('all_tasks'))
         else:
-            flash('Login Unsuccessful. Please check Username Or Password', 'danger')
+            flash('Login Unsuccessful. Please check Username or Password', 'danger')
     
     return render_template('login.html', title='Login', form=form)
     
@@ -156,3 +146,14 @@ def change_password():
 
     return render_template('change_password.html', title='Change Password', form=form)
 
+
+# New search route
+@app.route("/search_tasks", methods=['GET'])
+@login_required
+def search_tasks():
+    query = request.args.get('query')
+    if query:
+        tasks = Task.query.filter(Task.content.contains(query), Task.user_id == current_user.id).all()
+    else:
+        tasks = []
+    return render_template('all_tasks.html', title='Search Results', tasks=tasks)
