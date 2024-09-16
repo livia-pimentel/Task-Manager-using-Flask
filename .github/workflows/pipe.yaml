@@ -2,7 +2,7 @@ name: HdB
 
 on:
   push:
-    branches: ["development"]
+    branches: ["dev"]
 
 permissions:
   issues: write
