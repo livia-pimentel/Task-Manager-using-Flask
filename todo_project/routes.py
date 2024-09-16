@@ -4,31 +4,39 @@ from todo_project.forms import (LoginForm, RegistrationForm, UpdateUserInfoForm,
                                 UpdateUserPassword, TaskForm, UpdateTaskForm)
 from todo_project.models import User, Task
 from flask_login import login_required, current_user, login_user, logout_user
-from flask import Flask
+from flask import Flask, make_response
 
+
+# 1. Adicionando a política CSP com restrição de form-action e fontes externas específicas
 @app.after_request
-def apply_security_headers(response):
-    # Content-Security-Policy to prevent XSS and other injections
+def apply_csp(response):
     response.headers['Content-Security-Policy'] = (
         "default-src 'self'; "
         "script-src 'self' https://code.jquery.com; "
         "style-src 'self' https://stackpath.bootstrapcdn.com; "
-        "frame-ancestors 'none';"  # Clickjacking protection
+        "form-action 'self'; "  # Restringir envio de formulários à mesma origem
+        "frame-ancestors 'none'; "
     )
-    
-    # X-Frame-Options - Prevent clickjacking
-    response.headers['X-Frame-Options'] = 'DENY'
-    
-    # X-Content-Type-Options - Prevent MIME sniffing
-    response.headers['X-Content-Type-Options'] = 'nosniff'
-    
-    # Permissions-Policy - Restrict browser features
-    response.headers['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=()'
-    
-    # X-XSS-Protection - Enable XSS protection in browsers
-    response.headers['X-XSS-Protection'] = '1; mode=block'
-
     return response
+
+# 2. Removendo a divulgação da versão do servidor
+@app.after_request
+def remove_server_version(response):
+    response.headers['Server'] = 'SecureServer'  # Define um cabeçalho genérico para o servidor
+    return response
+
+# 3. Configurando SameSite para cookies
+@app.after_request
+def set_samesite_cookie(response):
+    if 'Set-Cookie' in response.headers:
+        cookies = response.headers.getlist('Set-Cookie')
+        response.headers['Set-Cookie'] = [cookie.replace('Set-Cookie:', 'Set-Cookie: SameSite=Lax;') for cookie in cookies]
+    return response
+
+# 4. Personalizando página de erro 500
+@app.errorhandler(500)
+def error_500(error):
+    return render_template('errors/500.html'), 500
 
 # Error Handlers
 @app.errorhandler(404)
@@ -38,10 +46,6 @@ def error_404(error):
 @app.errorhandler(403)
 def error_403(error):
     return render_template('errors/403.html'), 403
-
-@app.errorhandler(500)
-def error_500(error):
-    return render_template('errors/500.html'), 500
 
 
 # Home and About
