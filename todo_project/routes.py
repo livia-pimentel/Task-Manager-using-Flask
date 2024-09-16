@@ -6,25 +6,28 @@ from todo_project.models import User, Task
 from flask_login import login_required, current_user, login_user, logout_user
 
 
+# Error Handlers
 @app.errorhandler(404)
 def error_404(error):
-    return (render_template('errors/404.html'), 404)
+    return render_template('errors/404.html'), 404
 
 @app.errorhandler(403)
 def error_403(error):
-    return (render_template('errors/403.html'), 403)
+    return render_template('errors/403.html'), 403
 
 @app.errorhandler(500)
 def error_500(error):
-    return (render_template('errors/500.html'), 500)
+    return render_template('errors/500.html'), 500
 
 
+# Home and About
 @app.route("/")
 @app.route("/about")
 def about():
     return render_template('about.html', title='About')
 
 
+# User Authentication Routes
 @app.route("/login", methods=['POST', 'GET'])
 def login():
     if current_user.is_authenticated:
@@ -39,9 +42,9 @@ def login():
             return redirect(url_for('all_tasks'))
         else:
             flash('Login Unsuccessful. Please check Username or Password', 'danger')
-    
+
     return render_template('login.html', title='Login', form=form)
-    
+
 
 @app.route("/logout")
 def logout():
@@ -66,10 +69,11 @@ def register():
     return render_template('register.html', title='Register', form=form)
 
 
+# Task Routes
 @app.route("/all_tasks")
 @login_required
 def all_tasks():
-    tasks = User.query.filter_by(username=current_user.username).first().tasks
+    tasks = Task.query.filter_by(user_id=current_user.id).all()
     return render_template('all_tasks.html', title='All Tasks', tasks=tasks)
 
 
@@ -82,7 +86,7 @@ def add_task():
         db.session.add(task)
         db.session.commit()
         flash('Task Created', 'success')
-        return redirect(url_for('add_task'))
+        return redirect(url_for('all_tasks'))
     return render_template('add_task.html', form=form, title='Add Task')
 
 
@@ -115,18 +119,19 @@ def delete_task(task_id):
     return redirect(url_for('all_tasks'))
 
 
+# Account Routes
 @app.route("/account", methods=['POST', 'GET'])
 @login_required
 def account():
     form = UpdateUserInfoForm()
     if form.validate_on_submit():
-        if form.username.data != current_user.username:  
+        if form.username.data != current_user.username:
             current_user.username = form.username.data
             db.session.commit()
             flash('Username Updated Successfully', 'success')
             return redirect(url_for('account'))
     elif request.method == 'GET':
-        form.username.data = current_user.username 
+        form.username.data = current_user.username
 
     return render_template('account.html', title='Account Settings', form=form)
 
@@ -140,14 +145,14 @@ def change_password():
             current_user.password = bcrypt.generate_password_hash(form.new_password.data).decode('utf-8')
             db.session.commit()
             flash('Password Changed Successfully', 'success')
-            redirect(url_for('account'))
+            return redirect(url_for('account'))
         else:
-            flash('Please Enter Correct Password', 'danger') 
+            flash('Please Enter Correct Password', 'danger')
 
     return render_template('change_password.html', title='Change Password', form=form)
 
 
-# New search route
+# Search Tasks Route
 @app.route("/search_tasks", methods=['GET'])
 @login_required
 def search_tasks():
