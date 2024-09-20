@@ -18,25 +18,25 @@ jobs:
       - name: Build the Docker image
         run: docker build -t $(date +%s) .
 
-  # test:
-  #   needs: build
-  #   name: Testes
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Set up Python
-  #       uses: actions/setup-python@v5
-  #       with:
-  #         python-version: "3.9"
-  #     - name: Install dependencies
-  #       run: | 
-  #         python -m pip install pytest 
-  #         python -m pip install Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
-  #     - name: Run tests
-  #       run: PYTHONPATH=$PYTHONPATH:. pytest
+  test:
+    needs: build
+    name: Testes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - name: Install dependencies
+        run: | 
+          python -m pip install pytest 
+          python -m pip install Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
+      - name: Run tests
+        run: PYTHONPATH=$PYTHONPATH:. pytest
 
   # bandit:
-  #   needs: test
+  #   needs: build
   #   name: Bandit (SAST)
   #   runs-on: ubuntu-latest
   #   permissions:
@@ -48,7 +48,7 @@ jobs:
   #       uses: PyCQA/bandit-action@v1
   
   # dependency_check:
-  #   needs: test
+  #   needs: build
   #   name: Dependency-Check (SAST)
   #   runs-on: ubuntu-latest
   #   steps:
