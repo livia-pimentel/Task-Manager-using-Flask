@@ -1,4 +1,4 @@
-name: HdB
+name: Estudo de Caso HdB
 
 on:
   push:
@@ -37,7 +37,7 @@ jobs:
         run: PYTHONPATH=$PYTHONPATH:. pytest
 
   bandit:
-    needs: test
+    needs: build
     name: Bandit (SAST)
     runs-on: ubuntu-latest
     permissions:
@@ -49,7 +49,7 @@ jobs:
         uses: PyCQA/bandit-action@v1
   
   dependency_check:
-    needs: test
+    needs: build
     name: Dependency-Check (SAST)
     runs-on: ubuntu-latest
     steps:
@@ -101,8 +101,39 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           target: "http://localhost:5000"
 
-  create_pull_request:
+  loki:
     needs: zap
+    name: Loki Setup
+    runs-on: ubuntu-latest
+    services:
+      loki:
+        image: grafana/loki:latest
+        ports:
+          - 3100:3100
+    steps:
+      - name: Configure Loki logging
+        run: |
+          docker run -d -v /var/log:/var/log grafana/promtail:latest -config.file=/etc/promtail/config.yml
+      - name: View logs with Loki
+        run: echo "Loki logs available at localhost:3100"
+
+  grafana:
+    needs: loki
+    name: Grafana Setup
+    runs-on: ubuntu-latest
+    services:
+      grafana:
+        image: grafana/grafana:latest
+        ports:
+          - 3000:3000
+    steps:
+      - name: Access Grafana Dashboard
+        run: echo "Grafana running at http://localhost:3000"
+      - name: Configure Grafana
+        run: echo "Configure Loki as a data source in Grafana."
+
+  pull_request_automatic:
+    needs: grafana
     name: Deploy Stage para Simulação
     runs-on: ubuntu-latest
     steps:
@@ -114,12 +145,8 @@ jobs:
         uses: devops-infra/action-pull-request@v0.5.5
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          title: Automatic pull request
+          title: Create pull request automatic
           target_branch: staging
           assignee: ${{ github.actor }}
           label: automatic
           get_diff: true
-
-
-
-
