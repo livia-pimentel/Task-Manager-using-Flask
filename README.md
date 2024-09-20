@@ -14,6 +14,14 @@ Este estudo de caso tem como objetivo:
 - Uso Zed Attack Proxy (ZAP) para análise dinâmica de código (DAST).
 - Simulação de deploy em estágio.
 
+## Ferramentas Usadas
+- Bandit
+- Docker
+- GitHub Actions
+- Owasp Dependency-check
+- Python
+- ZAP
+
 
 ## Registration Page
 Login or Register if you dont have an account
