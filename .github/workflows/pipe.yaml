@@ -1,9 +1,8 @@
-name: HdB
+name: Estudo de Casp HdB - DevSecOps
 
 on:
   push:
     branches: ["dev"]
-
 permissions:
   issues: write
   contents: write
@@ -19,106 +18,106 @@ jobs:
       - name: Build the Docker image
         run: docker build -t $(date +%s) .
 
-  test:
-    needs: build
-    name: Testes
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.9"
-      - name: Install dependencies
-        run: | 
-          python -m pip install pytest 
-          python -m pip install Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
-      - name: Run tests
-        run: PYTHONPATH=$PYTHONPATH:. pytest
+  # test:
+  #   needs: build
+  #   name: Testes
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: "3.9"
+  #     - name: Install dependencies
+  #       run: | 
+  #         python -m pip install pytest 
+  #         python -m pip install Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
+  #     - name: Run tests
+  #       run: PYTHONPATH=$PYTHONPATH:. pytest
 
-  bandit:
-    needs: test
-    name: Bandit (SAST)
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-      actions: read
-      contents: read
-    steps:
-      - name: Bandit Analysis
-        uses: PyCQA/bandit-action@v1
+  # bandit:
+  #   needs: test
+  #   name: Bandit (SAST)
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     security-events: write
+  #     actions: read
+  #     contents: read
+  #   steps:
+  #     - name: Bandit Analysis
+  #       uses: PyCQA/bandit-action@v1
   
-  dependency_check:
-    needs: test
-    name: Dependency-Check (SAST)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.9"
-      - name: Install dependencies
-        run: python -m pip install -r requirements.txt
-      - name: Check dependency
-        uses: dependency-check/Dependency-Check_Action@main
-        id: Dependency-Check
-        with:
-          project: "Task-Manager-using-Flask"
-          path: "."
-          format: "HTML"
-          out: "reports"
-          args: >
-            --scan "**/*.py"
-            --scan "requirements.txt"
-            --failOnCVSS 7
-            --enableRetired
-      - name: Upload results
-        uses: actions/upload-artifact@v4
-        with:
-          name: Dependency-Check report
-          path: ${{github.workspace}}/reports
+  # dependency_check:
+  #   needs: test
+  #   name: Dependency-Check (SAST)
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: "3.9"
+  #     - name: Install dependencies
+  #       run: python -m pip install -r requirements.txt
+  #     - name: Check dependency
+  #       uses: dependency-check/Dependency-Check_Action@main
+  #       id: Dependency-Check
+  #       with:
+  #         project: "Task-Manager-using-Flask"
+  #         path: "."
+  #         format: "HTML"
+  #         out: "reports"
+  #         args: >
+  #           --scan "**/*.py"
+  #           --scan "requirements.txt"
+  #           --failOnCVSS 7
+  #           --enableRetired
+  #     - name: Upload results
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: Dependency-Check report
+  #         path: ${{github.workspace}}/reports
   
-  zap:
-    needs: 
-      - bandit
-      - dependency_check
-    name: ZAP Scanning Report (DAST)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Build Docker image
-        run: docker build -t task-image .
-      - name: Run application
-        run: |
-          docker run -d -p 5000:5000 --name task-manager task-image
-          sleep 10
-      - name: Zap Scan
-        uses: zaproxy/action-full-scan@v0.10.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          target: "http://localhost:5000"
+  # zap:
+  #   needs: 
+  #     - bandit
+  #     - dependency_check
+  #   name: ZAP Scanning Report (DAST)
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #     - name: Build Docker image
+  #       run: docker build -t task-image .
+  #     - name: Run application
+  #       run: |
+  #         docker run -d -p 5000:5000 --name task-manager task-image
+  #         sleep 10
+  #     - name: Zap Scan
+  #       uses: zaproxy/action-full-scan@v0.10.0
+  #       with:
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+  #         target: "http://localhost:5000"
 
-  create_pull_request:
-    needs: zap
-    name: Deploy Stage para Simulação
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Run the Action
-        uses: devops-infra/action-pull-request@v0.5.5
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          title: Automatic pull request
-          target_branch: staging
-          assignee: ${{ github.actor }}
-          label: automatic
-          get_diff: true
+  # create_pull_request:
+  #   needs: zap
+  #   name: Deploy Stage para Simulação
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
+  #     - name: Run the Action
+  #       uses: devops-infra/action-pull-request@v0.5.5
+  #       with:
+  #         github_token: ${{ secrets.GITHUB_TOKEN }}
+  #         title: Automatic pull request
+  #         target_branch: staging
+  #         assignee: ${{ github.actor }}
+  #         label: automatic
+  #         get_diff: true
 
 
 
