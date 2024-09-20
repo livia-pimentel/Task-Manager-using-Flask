@@ -100,24 +100,24 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           target: "http://localhost:5000"
 
-  # create_pull_request:
-  #   needs: zap
-  #   name: Deploy Stage para Simulação
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0
-  #     - name: Run the Action
-  #       uses: devops-infra/action-pull-request@v0.5.5
-  #       with:
-  #         github_token: ${{ secrets.GITHUB_TOKEN }}
-  #         title: Automatic pull request
-  #         target_branch: staging
-  #         assignee: ${{ github.actor }}
-  #         label: automatic
-  #         get_diff: true
+  pull_request_automatic:
+    needs: zap
+    name: Deploy Stage para Simulação
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run the Action
+        uses: devops-infra/action-pull-request@v0.5.5
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          title: Create pull request automatic
+          target_branch: staging
+          assignee: ${{ github.actor }}
+          label: automatic
+          get_diff: true
 
 
 
